@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Example</string>
     <string name="action_settings">Settings</string>
+    <string name="Total"> Total: 0 </string>
+    <string name="minus"> Minus 1 </string>
+    <string name="add"> Add 1 </string>
 </resources>
