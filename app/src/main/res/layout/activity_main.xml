@@ -35,14 +35,16 @@
         app:layout_constraintTop_toBottomOf="@+id/bMinus"
         tools:layout_editor_absoluteX="2dp" />
 
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fbAddPoint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        app:layout_constraintStart_toEndOf="@+id/blocate"
         app:layout_constraintTop_toBottomOf="@+id/blocate"
-        app:srcCompat="@android:drawable/ic_dialog_email"
-        tools:layout_editor_absoluteX="343dp" />
+        app:srcCompat="@android:drawable/ic_dialog_email" />
 
     <Button
         android:id="@+id/blocate"
@@ -73,5 +75,16 @@
         android:text="Minus"
         app:layout_constraintStart_toEndOf="@+id/bAdd"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+
+    <Button
+        android:id="@+id/bSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="Switch"
+        app:layout_constraintEnd_toEndOf="@+id/fbAddPoint"
+        app:layout_constraintTop_toBottomOf="@+id/fbAddPoint" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

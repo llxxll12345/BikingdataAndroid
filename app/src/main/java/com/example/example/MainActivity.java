@@ -3,40 +3,46 @@ package com.example.example;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
-import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.map.BaiduMap;
-import com.baidu.mapapi.map.BaiduMapOptions;
-import com.baidu.mapapi.map.LogoPosition;
+import com.baidu.mapapi.map.BitmapDescriptor;
+import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.MapPoi;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.Marker;
+import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationData;
-import com.baidu.mapapi.map.SupportMapFragment;
+import com.baidu.mapapi.map.OverlayOptions;
+import com.baidu.mapapi.map.TextOptions;
 import com.baidu.mapapi.model.LatLng;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+import com.example.objects.Points;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import android.provider.Settings;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.OnNeverAskAgain;
@@ -59,35 +65,18 @@ public class MainActivity extends AppCompatActivity {
     private double latitude;
     private double longitude;
 
+    private BitmapDescriptor markerIcon;
+
     int counter;
     Button mAdd, mMinus, mLocate;
     TextView mTotal, tLocate;
 
+    // list of markups
+    ArrayList<Points> markupList;
+
     class MyLocationListener extends BDAbstractLocationListener {
         @Override
         public void onReceiveLocation(BDLocation location) {
-            //获取定位结果
-            location.getTime();             //获取定位时间
-            location.getLocationID();       //获取定位唯一ID，v7.2版本新增，用于排查定位问题
-            location.getLocType();          //获取定位类型
-            location.getLatitude();         //获取纬度信息
-            location.getLongitude();        //获取经度信息
-            location.getRadius();           //获取定位精准度
-            location.getAddrStr();          //获取地址信息
-            location.getCountry();          //获取国家信息
-            location.getCountryCode();      //获取国家码
-            location.getCity();             //获取城市信息
-            location.getCityCode();         //获取城市码
-            location.getDistrict();         //获取区县信息
-            location.getStreet();           //获取街道信息
-            location.getStreetNumber();     //获取街道码
-            location.getLocationDescribe(); //获取当前位置描述信息
-            location.getPoiList();          //获取当前位置周边POI信息
-
-            location.getBuildingID();       //室内精准定位下，获取楼宇ID
-            location.getBuildingName();     //室内精准定位下，获取楼宇名称
-            location.getFloor();            //室内精准定位下，获取当前位置所处的楼层信息
-
             latitude = location.getLatitude();
             longitude = location.getLongitude();
 
@@ -95,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
             if (isFirstLocation) {
                 isFirstLocation = false;
                 setPosToCenter(myMap, location, true);
-                tLocate.setText("tLocation: " + latitude + " " + longitude);
+                tLocate.setText("tLocation Coords: " + latitude + " " + longitude + " City: " + location.getCity());
             }
         }
     }
@@ -117,28 +106,17 @@ public class MainActivity extends AppCompatActivity {
 
     public void initLocation() {
         LocationClientOption option = new LocationClientOption();
-        //可选，默认高精度，设置定位模式，高精度，低功耗，仅设备
         option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
-        //可选，默认gcj02，设置返回的定位结果坐标系
         option.setCoorType("bd09ll");
-        //可选，默认0，即仅定位一次，设置发起定位请求的间隔需要大于等于1000ms才是有效的
         int span = 1000;
         option.setScanSpan(span);
-        //可选，设置是否需要地址信息，默认不需要
         option.setIsNeedAddress(true);
-        //可选，默认false,设置是否使用gps
         option.setOpenGps(true);
-        //可选，默认false，设置是否当GPS有效时按照1S/1次频率输出GPS结果
         option.setLocationNotify(true);
-        //可选，默认false，设置是否需要位置语义化结果，可以在BDLocation.getLocationDescribe里得到，结果类似于“在北京天安门附近”
         option.setIsNeedLocationDescribe(true);
-        //可选，默认false，设置是否需要POI结果，可以在BDLocation.getPoiList里得到
         option.setIsNeedLocationPoiList(true);
-        //可选，默认true，定位SDK内部是一个SERVICE，并放到了独立进程，设置是否在stop的时候杀死这个进程，默认不杀死
         option.setIgnoreKillProcess(false);
-        //可选，默认false，设置是否收集CRASH信息，默认收集
         option.SetIgnoreCacheException(false);
-        //可选，默认false，设置是否需要过滤GPS仿真结果，默认需要
         option.setEnableSimulateGps(false);
         myLocationClient.setLocOption(option);
     }
@@ -159,6 +137,8 @@ public class MainActivity extends AppCompatActivity {
         myMap.setTrafficEnabled(true);
         //myMapView.showZoomControls(false);
 
+        myMapView.removeViewAt(1);
+
         myMap.setMyLocationEnabled(true);
 
         myLocationClient = new LocationClient(getApplicationContext());
@@ -169,35 +149,10 @@ public class MainActivity extends AppCompatActivity {
         myLocationClient.start();
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /*setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-        myMapView = (MapView) findViewById(R.id.bmapView);*/
-
-        //Setting the options
-       /* BaiduMapOptions options = new BaiduMapOptions();
-        options.mapType(BaiduMap.MAP_TYPE_SATELLITE);
-
-        //Without setting the layout
-        myMapView = new MapView(this, options);
-        setContentView(myMapView);
-
-        MapStatus.Builder builder = new MapStatus.Builder();
-        builder.zoom(18.0f);
-        myMapView.setMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
-        */
 
         setContentView(R.layout.activity_main);
 
@@ -206,6 +161,8 @@ public class MainActivity extends AppCompatActivity {
         } else {
             MainActivityPermissionsDispatcher.ApplySuccessWithCheck(this);
         }
+
+        markupList = new ArrayList<>();
 
         counter = 0;
         mAdd = (Button) findViewById(R.id.bAdd);
@@ -243,6 +200,155 @@ public class MainActivity extends AppCompatActivity {
                }
            }
         );
+
+
+        myMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+               //Intent intent = new Intent();
+                Bundle bundle = marker.getExtraInfo();
+                int id = bundle.getInt("id");
+                final String coords = bundle.getString("coord");
+                final String name = bundle.getString("name");
+                final String desp = bundle.getString("desp");
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setIcon(R.drawable.marker);
+                builder.setTitle("Markup detail");
+                View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.marker_display, null);
+                builder.setView(view);
+
+                final TextView dCoord = (TextView) view.findViewById(R.id.dCoord);
+                final TextView dName = (TextView) view.findViewById(R.id.dName);
+                final TextView dDes = (TextView) view.findViewById(R.id.dDes);
+
+                dCoord.setText(coords);
+                dName.setText(name);
+                dDes.setText(desp);
+
+                builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                builder.show();
+                //intent.putExtra("id", id);
+                //Toast.makeText(MainActivity.this, "marker id: " + id, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
+
+        myMap.setOnMapClickListener(
+            new BaiduMap.OnMapClickListener() {
+                @Override
+                public void onMapClick(LatLng latLng) {
+                    final double curLat = latLng.latitude;
+                    final double curLong = latLng.longitude;
+
+                    System.out.println("Hit Latitude= " + curLat + " Longitude= " + curLong);
+                    // clear the map layer
+                    // myMap.clear();
+                    final LatLng point = new LatLng(curLat, curLong);
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setIcon(R.drawable.marker);
+                    builder.setTitle("Add a new markup");
+                    View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.marker_dialog, null);
+                    builder.setView(view);
+
+                    final EditText locname = (EditText)view.findViewById(R.id.locationName);
+                    final EditText desp = (EditText)view.findViewById(R.id.description);
+                    final TextView tCoords = (TextView)view.findViewById(R.id.tCoords);
+                    tCoords.setText("Coords: " + curLat + ", " + curLong);
+
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String a = locname.getText().toString().trim();
+                            String b = desp.getText().toString().trim();
+                            markupList.add(new Points(point, markupList.size(), a, b));
+
+                            Bundle myBundle = new Bundle();
+                            myBundle.putInt("id", markupList.size() - 1);
+                            myBundle.putString("coord", curLat + ", " + curLong);
+                            myBundle.putString("name", a);
+                            myBundle.putString("desp", b);
+
+                            View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.marker_layout, null);
+                            TextView locName = (TextView) view.findViewById(R.id.loc_name);
+                            locName.setText(a);
+                            markerIcon = BitmapDescriptorFactory.fromBitmap(Utility.getViewBitmap(view));
+
+                            MarkerOptions options = new MarkerOptions()
+                                    .position(point)
+                                    .icon(markerIcon)
+                                    .zIndex(markupList.size() - 1)
+                                    .draggable(true)
+                                    .extraInfo(myBundle);
+                            myMap.addOverlay(options);
+
+                            OverlayOptions textOption = new TextOptions()
+                                    //                    .bgColor(0xAAFFFF00)
+                                    .fontSize(16)
+                                    .fontColor(Color.BLACK)
+                                    .text("Point1")
+                                    .position(point);
+
+                            myMap.addOverlay(textOption);
+
+                            Toast.makeText(MainActivity.this, "Added markupname: " + a, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+                    builder.show();
+                }
+
+                @Override
+                public boolean onMapPoiClick(MapPoi mapPoi) {
+                    return false;
+                }
+            }
+        );
+
+        Button switchButton =(Button)findViewById(R.id.bSwitch);
+        switchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+             public void onClick(View v) {
+                //Intent intent =new Intent(MainActivity.this, ButtonSelectorActivity.class);
+                //startActivityForResult(intent, 1);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setIcon(R.drawable.marker);
+                builder.setTitle("Username and password");
+                View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.pop_up_dialog, null);
+                builder.setView(view);
+
+                final EditText username = (EditText)view.findViewById(R.id.username);
+                final EditText password = (EditText)view.findViewById(R.id.password);
+
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String a = username.getText().toString().trim();
+                        String b = password.getText().toString().trim();
+                        Toast.makeText(MainActivity.this, "Username: " + a + ", Password: " + b, Toast.LENGTH_SHORT).show();
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                builder.show();
+             }
+        });
     }
 
     @Override
@@ -365,5 +471,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         builder.create().show();
+    }
+
+    @Override
+    protected  void onActivityResult(int requestCode,int resultCode ,Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 1 && resultCode == 2){
+            String content = data.getStringExtra("data");
+            tLocate.setText("Returned.");
+        }
     }
 }

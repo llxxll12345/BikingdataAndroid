@@ -20,6 +20,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ButtonSelectorActivity"
+            android:label="test"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
 
         <service
             android:name="com.baidu.location.f"
