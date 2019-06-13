@@ -156,199 +156,202 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            initMap();
-        } else {
-            MainActivityPermissionsDispatcher.ApplySuccessWithCheck(this);
-        }
+        //test
+        myMapView = (MapView) findViewById(R.id.bmapView);
 
-        markupList = new ArrayList<>();
-
-        counter = 0;
-        mAdd = (Button) findViewById(R.id.bAdd);
-        mMinus = (Button) findViewById(R.id.bMinus);
-        mTotal = (TextView) findViewById(R.id.tResult);
-
-        mAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                counter++;
-                mTotal.setText("Total: " + counter);
-            }
-        });
-
-        mMinus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                counter--;
-                mTotal.setText("Total: " + counter);
-            }
-        });
-
-        mLocate = (Button) findViewById(R.id.blocate);
-        tLocate = (TextView) findViewById(R.id.tLocation);
-
-        mLocate.setOnClickListener(
-            new View.OnClickListener() {
-               @Override
-               public void onClick(View v) {
-                   LatLng ll = new LatLng(latitude, longitude);
-                   MapStatus.Builder builder = new MapStatus.Builder();
-                   builder.target(ll).zoom(18.0f);
-                   myMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
-                   tLocate.setText("Location: " + latitude + " " + longitude);
-               }
-           }
-        );
-
-
-        myMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-               //Intent intent = new Intent();
-                Bundle bundle = marker.getExtraInfo();
-                int id = bundle.getInt("id");
-                final String coords = bundle.getString("coord");
-                final String name = bundle.getString("name");
-                final String desp = bundle.getString("desp");
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setIcon(R.drawable.marker);
-                builder.setTitle("Markup detail");
-                View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.marker_display, null);
-                builder.setView(view);
-
-                final TextView dCoord = (TextView) view.findViewById(R.id.dCoord);
-                final TextView dName = (TextView) view.findViewById(R.id.dName);
-                final TextView dDes = (TextView) view.findViewById(R.id.dDes);
-
-                dCoord.setText(coords);
-                dName.setText(name);
-                dDes.setText(desp);
-
-                builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
-                builder.show();
-                //intent.putExtra("id", id);
-                //Toast.makeText(MainActivity.this, "marker id: " + id, Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-
-        myMap.setOnMapClickListener(
-            new BaiduMap.OnMapClickListener() {
-                @Override
-                public void onMapClick(LatLng latLng) {
-                    final double curLat = latLng.latitude;
-                    final double curLong = latLng.longitude;
-
-                    System.out.println("Hit Latitude= " + curLat + " Longitude= " + curLong);
-                    // clear the map layer
-                    // myMap.clear();
-                    final LatLng point = new LatLng(curLat, curLong);
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setIcon(R.drawable.marker);
-                    builder.setTitle("Add a new markup");
-                    View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.marker_dialog, null);
-                    builder.setView(view);
-
-                    final EditText locname = (EditText)view.findViewById(R.id.locationName);
-                    final EditText desp = (EditText)view.findViewById(R.id.description);
-                    final TextView tCoords = (TextView)view.findViewById(R.id.tCoords);
-                    tCoords.setText("Coords: " + curLat + ", " + curLong);
-
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            String a = locname.getText().toString().trim();
-                            String b = desp.getText().toString().trim();
-                            markupList.add(new Points(point, markupList.size(), a, b));
-
-                            Bundle myBundle = new Bundle();
-                            myBundle.putInt("id", markupList.size() - 1);
-                            myBundle.putString("coord", curLat + ", " + curLong);
-                            myBundle.putString("name", a);
-                            myBundle.putString("desp", b);
-
-                            View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.marker_layout, null);
-                            TextView locName = (TextView) view.findViewById(R.id.loc_name);
-                            locName.setText(a);
-                            markerIcon = BitmapDescriptorFactory.fromBitmap(Utility.getViewBitmap(view));
-
-                            MarkerOptions options = new MarkerOptions()
-                                    .position(point)
-                                    .icon(markerIcon)
-                                    .zIndex(markupList.size() - 1)
-                                    .draggable(true)
-                                    .extraInfo(myBundle);
-                            myMap.addOverlay(options);
-
-                            OverlayOptions textOption = new TextOptions()
-                                    //                    .bgColor(0xAAFFFF00)
-                                    .fontSize(16)
-                                    .fontColor(Color.BLACK)
-                                    .text("Point1")
-                                    .position(point);
-
-                            myMap.addOverlay(textOption);
-
-                            Toast.makeText(MainActivity.this, "Added markupname: " + a, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        }
-                    });
-                    builder.show();
-                }
-
-                @Override
-                public boolean onMapPoiClick(MapPoi mapPoi) {
-                    return false;
-                }
-            }
-        );
-
-        Button switchButton =(Button)findViewById(R.id.bSwitch);
-        switchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-             public void onClick(View v) {
-                //Intent intent =new Intent(MainActivity.this, ButtonSelectorActivity.class);
-                //startActivityForResult(intent, 1);
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setIcon(R.drawable.marker);
-                builder.setTitle("Username and password");
-                View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.pop_up_dialog, null);
-                builder.setView(view);
-
-                final EditText username = (EditText)view.findViewById(R.id.username);
-                final EditText password = (EditText)view.findViewById(R.id.password);
-
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String a = username.getText().toString().trim();
-                        String b = password.getText().toString().trim();
-                        Toast.makeText(MainActivity.this, "Username: " + a + ", Password: " + b, Toast.LENGTH_SHORT).show();
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
-                builder.show();
-             }
-        });
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+//            initMap();
+//        } else {
+//            MainActivityPermissionsDispatcher.ApplySuccessWithCheck(this);
+//        }
+//
+//        markupList = new ArrayList<>();
+//
+//        counter = 0;
+//        mAdd = (Button) findViewById(R.id.bAdd);
+//        mMinus = (Button) findViewById(R.id.bMinus);
+//        mTotal = (TextView) findViewById(R.id.tResult);
+//
+//        mAdd.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                counter++;
+//                mTotal.setText("Total: " + counter);
+//            }
+//        });
+//
+//        mMinus.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                counter--;
+//                mTotal.setText("Total: " + counter);
+//            }
+//        });
+//
+//        mLocate = (Button) findViewById(R.id.blocate);
+//        tLocate = (TextView) findViewById(R.id.tLocation);
+//
+//        mLocate.setOnClickListener(
+//            new View.OnClickListener() {
+//               @Override
+//               public void onClick(View v) {
+//                   LatLng ll = new LatLng(latitude, longitude);
+//                   MapStatus.Builder builder = new MapStatus.Builder();
+//                   builder.target(ll).zoom(18.0f);
+//                   myMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
+//                   tLocate.setText("Location: " + latitude + " " + longitude);
+//               }
+//           }
+//        );
+//
+//
+//        myMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
+//            @Override
+//            public boolean onMarkerClick(Marker marker) {
+//               //Intent intent = new Intent();
+//                Bundle bundle = marker.getExtraInfo();
+//                int id = bundle.getInt("id");
+//                final String coords = bundle.getString("coord");
+//                final String name = bundle.getString("name");
+//                final String desp = bundle.getString("desp");
+//
+//                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+//                builder.setIcon(R.drawable.marker);
+//                builder.setTitle("Markup detail");
+//                View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.marker_display, null);
+//                builder.setView(view);
+//
+//                final TextView dCoord = (TextView) view.findViewById(R.id.dCoord);
+//                final TextView dName = (TextView) view.findViewById(R.id.dName);
+//                final TextView dDes = (TextView) view.findViewById(R.id.dDes);
+//
+//                dCoord.setText(coords);
+//                dName.setText(name);
+//                dDes.setText(desp);
+//
+//                builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//
+//                    }
+//                });
+//                builder.show();
+//                //intent.putExtra("id", id);
+//                //Toast.makeText(MainActivity.this, "marker id: " + id, Toast.LENGTH_SHORT).show();
+//                return false;
+//            }
+//        });
+//
+//        myMap.setOnMapClickListener(
+//            new BaiduMap.OnMapClickListener() {
+//                @Override
+//                public void onMapClick(LatLng latLng) {
+//                    final double curLat = latLng.latitude;
+//                    final double curLong = latLng.longitude;
+//
+//                    System.out.println("Hit Latitude= " + curLat + " Longitude= " + curLong);
+//                    // clear the map layer
+//                    // myMap.clear();
+//                    final LatLng point = new LatLng(curLat, curLong);
+//
+//                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+//                    builder.setIcon(R.drawable.marker);
+//                    builder.setTitle("Add a new markup");
+//                    View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.marker_dialog, null);
+//                    builder.setView(view);
+//
+//                    final EditText locname = (EditText)view.findViewById(R.id.locationName);
+//                    final EditText desp = (EditText)view.findViewById(R.id.description);
+//                    final TextView tCoords = (TextView)view.findViewById(R.id.tCoords);
+//                    tCoords.setText("Coords: " + curLat + ", " + curLong);
+//
+//                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            String a = locname.getText().toString().trim();
+//                            String b = desp.getText().toString().trim();
+//                            markupList.add(new Points(point, markupList.size(), a, b));
+//
+//                            Bundle myBundle = new Bundle();
+//                            myBundle.putInt("id", markupList.size() - 1);
+//                            myBundle.putString("coord", curLat + ", " + curLong);
+//                            myBundle.putString("name", a);
+//                            myBundle.putString("desp", b);
+//
+//                            View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.marker_layout, null);
+//                            TextView locName = (TextView) view.findViewById(R.id.loc_name);
+//                            locName.setText(a);
+//                            markerIcon = BitmapDescriptorFactory.fromBitmap(Utility.getViewBitmap(view));
+//
+//                            MarkerOptions options = new MarkerOptions()
+//                                    .position(point)
+//                                    .icon(markerIcon)
+//                                    .zIndex(markupList.size() - 1)
+//                                    .draggable(true)
+//                                    .extraInfo(myBundle);
+//                            myMap.addOverlay(options);
+//
+//                            OverlayOptions textOption = new TextOptions()
+//                                    //                    .bgColor(0xAAFFFF00)
+//                                    .fontSize(16)
+//                                    .fontColor(Color.BLACK)
+//                                    .text("Point1")
+//                                    .position(point);
+//
+//                            myMap.addOverlay(textOption);
+//
+//                            Toast.makeText(MainActivity.this, "Added markupname: " + a, Toast.LENGTH_SHORT).show();
+//                        }
+//                    });
+//                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//
+//                        }
+//                    });
+//                    builder.show();
+//                }
+//
+//                @Override
+//                public boolean onMapPoiClick(MapPoi mapPoi) {
+//                    return false;
+//                }
+//            }
+//        );
+//
+//        Button switchButton =(Button)findViewById(R.id.bSwitch);
+//        switchButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//             public void onClick(View v) {
+//                //Intent intent =new Intent(MainActivity.this, ButtonSelectorActivity.class);
+//                //startActivityForResult(intent, 1);
+//
+//                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+//                builder.setIcon(R.drawable.marker);
+//                builder.setTitle("Username and password");
+//                View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.pop_up_dialog, null);
+//                builder.setView(view);
+//
+//                final EditText username = (EditText)view.findViewById(R.id.username);
+//                final EditText password = (EditText)view.findViewById(R.id.password);
+//
+//                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        String a = username.getText().toString().trim();
+//                        String b = password.getText().toString().trim();
+//                        Toast.makeText(MainActivity.this, "Username: " + a + ", Password: " + b, Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//
+//                    }
+//                });
+//                builder.show();
+//             }
+//        });
     }
 
     @Override

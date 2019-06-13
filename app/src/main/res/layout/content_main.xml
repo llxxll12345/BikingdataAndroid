@@ -11,8 +11,8 @@
 
     <TextView
         android:id="@+id/tLocation"
-        android:layout_width="80dp"
-        android:layout_height="81dp"
+        android:layout_width="79dp"
+        android:layout_height="60dp"
         android:text="Location: "
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -21,8 +21,8 @@
 
     <TextView
         android:id="@+id/tResult"
-        android:layout_width="397dp"
-        android:layout_height="71dp"
+        android:layout_width="415dp"
+        android:layout_height="46dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:gravity="top"
@@ -34,11 +34,14 @@
 
     <com.baidu.mapapi.map.MapView
         android:id="@+id/bmapView"
-        android:layout_width="294dp"
-        android:layout_height="229dp"
-        android:layout_marginStart="100dp"
-        android:layout_marginTop="148dp"
+        android:layout_width="374dp"
+        android:layout_height="356dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="116dp"
+        android:layout_marginEnd="8dp"
         android:clickable="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.619"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
