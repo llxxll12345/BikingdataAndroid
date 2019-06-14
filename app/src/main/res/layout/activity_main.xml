@@ -31,17 +31,16 @@
         layout="@layout/content_main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@+id/bMinus"
-        tools:layout_editor_absoluteX="2dp" />
+        tools:layout_editor_absoluteX="1dp" />
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fbAddPoint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="520dp"
         app:layout_constraintStart_toEndOf="@+id/blocate"
         app:layout_constraintTop_toBottomOf="@+id/blocate"
         app:srcCompat="@android:drawable/ic_dialog_email" />
@@ -80,8 +79,6 @@
         android:id="@+id/bSwitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
         android:text="Switch"
         app:layout_constraintEnd_toEndOf="@+id/fbAddPoint"
         app:layout_constraintTop_toBottomOf="@+id/fbAddPoint" />
