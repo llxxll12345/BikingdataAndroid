@@ -9,7 +9,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        android:hardwareAccelerated="true">
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -22,7 +23,19 @@
         </activity>
         <activity
             android:name=".ButtonSelectorActivity"
-            android:label="test"
+            android:label="Button_selector"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+
+        <activity
+            android:name=".UploadActivity"
+            android:label="Photo_upload"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+
+        <activity
+            android:name=".MarkerActivity"
+            android:label="Photo_upload"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
@@ -35,6 +48,16 @@
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="GLrLbiG8jMj1qlr66MDeWu4dGI8QHP3Z" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.example.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -59,4 +82,7 @@
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
 </manifest>

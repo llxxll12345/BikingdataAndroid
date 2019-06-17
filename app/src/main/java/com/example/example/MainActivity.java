@@ -26,6 +26,7 @@ import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.TextOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.bumptech.glide.Glide;
 import com.example.objects.Points;
 
 import androidx.annotation.NonNull;
@@ -33,12 +34,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,10 +70,18 @@ public class MainActivity extends AppCompatActivity {
 
     private BitmapDescriptor markerIcon;
 
+    final int[] photoIdsDisplay = {    R.id.imageView13
+                                        , R.id.imageView14
+                                        , R.id.imageView15
+                                        , R.id.imageView16
+                                        , R.id.imageView17
+                                        , R.id.imageView18 };
+
     int counter;
     Button mAdd, mMinus, mLocate;
     TextView mTotal, tLocate;
 
+    ArrayList<String> tempPhotoUrlList;
     // list of markups
     ArrayList<Points> markupList;
 
@@ -209,8 +220,9 @@ public class MainActivity extends AppCompatActivity {
                 Bundle bundle = marker.getExtraInfo();
                 int id = bundle.getInt("id");
                 final String coords = bundle.getString("coord");
-                final String name = bundle.getString("name");
-                final String desp = bundle.getString("desp");
+                final String name   = bundle.getString("name");
+                final String desp   = bundle.getString("desp");
+                final String paths  = bundle.getString("paths");
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setIcon(R.drawable.marker);
@@ -221,6 +233,15 @@ public class MainActivity extends AppCompatActivity {
                 final TextView dCoord = (TextView) view.findViewById(R.id.dCoord);
                 final TextView dName = (TextView) view.findViewById(R.id.dName);
                 final TextView dDes = (TextView) view.findViewById(R.id.dDes);
+
+                String[] pathList = paths.split(";");
+                for (int i = 0; i < pathList.length; i++) {
+                    Log.d("path", i + " " + pathList[i]);
+                    ImageView photoView= view.findViewById(photoIdsDisplay[i]);
+                    Glide.with(MainActivity.this)
+                            .load(pathList[i])
+                            .into(photoView);
+                }
 
                 dCoord.setText(coords);
                 dName.setText(name);
@@ -251,64 +272,12 @@ public class MainActivity extends AppCompatActivity {
                     // myMap.clear();
                     final LatLng point = new LatLng(curLat, curLong);
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setIcon(R.drawable.marker);
-                    builder.setTitle("Add a new markup");
-                    View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.marker_dialog, null);
-                    builder.setView(view);
 
-                    final EditText locname = (EditText)view.findViewById(R.id.locationName);
-                    final EditText desp = (EditText)view.findViewById(R.id.description);
-                    final TextView tCoords = (TextView)view.findViewById(R.id.tCoords);
-                    tCoords.setText("Coords: " + curLat + ", " + curLong);
-
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            String a = locname.getText().toString().trim();
-                            String b = desp.getText().toString().trim();
-                            markupList.add(new Points(point, markupList.size(), a, b));
-
-                            Bundle myBundle = new Bundle();
-                            myBundle.putInt("id", markupList.size() - 1);
-                            myBundle.putString("coord", curLat + ", " + curLong);
-                            myBundle.putString("name", a);
-                            myBundle.putString("desp", b);
-
-                            View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.marker_layout, null);
-                            TextView locName = (TextView) view.findViewById(R.id.loc_name);
-                            locName.setText(a);
-                            markerIcon = BitmapDescriptorFactory.fromBitmap(Utility.getViewBitmap(view));
-
-                            MarkerOptions options = new MarkerOptions()
-                                    .position(point)
-                                    .icon(markerIcon)
-                                    .zIndex(markupList.size() - 1)
-                                    .draggable(true)
-                                    .extraInfo(myBundle);
-                            myMap.addOverlay(options);
-
-                            OverlayOptions textOption = new TextOptions()
-                                    //                    .bgColor(0xAAFFFF00)
-                                    .fontSize(16)
-                                    .fontColor(Color.BLACK)
-                                    .text("Point1")
-                                    .position(point);
-
-                            myMap.addOverlay(textOption);
-
-                            Toast.makeText(MainActivity.this, "Added markupname: " + a, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        }
-                    });
-                    builder.show();
+                    Intent intent =new Intent(MainActivity.this, MarkerActivity.class);
+                    intent.putExtra("lat", String.format("%5.2f", curLat));
+                    intent.putExtra("long", String.format("%5.2f", curLong));
+                    startActivityForResult(intent, 1);
                 }
-
                 @Override
                 public boolean onMapPoiClick(MapPoi mapPoi) {
                     return false;
@@ -320,10 +289,10 @@ public class MainActivity extends AppCompatActivity {
         switchButton.setOnClickListener(new View.OnClickListener() {
             @Override
              public void onClick(View v) {
-                //Intent intent =new Intent(MainActivity.this, ButtonSelectorActivity.class);
-                //startActivityForResult(intent, 1);
+                Intent intent =new Intent(MainActivity.this, UploadActivity.class);
+                startActivityForResult(intent, 1);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                /*AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setIcon(R.drawable.marker);
                 builder.setTitle("Username and password");
                 View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.pop_up_dialog, null);
@@ -346,9 +315,11 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
-                builder.show();
+                builder.show();*/
              }
         });
+
+        tempPhotoUrlList = new ArrayList<>();
     }
 
     @Override
@@ -359,8 +330,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
+        Log.i("App", " paused");
         super.onPause();
+        myMapView.onPause();    // Be careful !!!!
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.i("App", " destroyed");
         myMapView.onDestroy();
+        super.onDestroy();
     }
 
     @Override
@@ -393,7 +372,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 申请权限成功时
+     *      Successfully acquired permission to access coarse location
      */
     @NeedsPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
     void ApplySuccess() {
@@ -451,7 +430,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 被拒绝并且不再提醒,提示用户去设置界面重新打开权限
+     *      Denided -> ask the user to activate permissions in settings
      */
     private void AskForPermission() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -473,12 +452,56 @@ public class MainActivity extends AppCompatActivity {
         builder.create().show();
     }
 
+    void addMarkerToMap(String locName, String description, String longitude, String latitude, String paths, int id) {
+        Bundle myBundle = new Bundle();
+        myBundle.putInt("id",id);
+        myBundle.putString("coord", latitude + ", " + longitude);
+        myBundle.putString("name", locName);
+        myBundle.putString("desp", description);
+        myBundle.putString("paths", paths);
+
+        View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.marker_layout, null);
+        TextView locNameText = (TextView) view.findViewById(R.id.loc_name);
+        locNameText.setText(locName);
+        markerIcon = BitmapDescriptorFactory.fromBitmap(Utility.getViewBitmap(view));
+
+        LatLng point = new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude));
+        MarkerOptions options = new MarkerOptions()
+                .position(point)
+                .icon(markerIcon)
+                .zIndex(id)
+                .draggable(true)
+                .extraInfo(myBundle);
+        myMap.addOverlay(options);
+
+        OverlayOptions textOption = new TextOptions()
+                //                    .bgColor(0xAAFFFF00)
+                .fontSize(16)
+                .fontColor(Color.BLACK)
+                .text(locName)
+                .position(point);
+        myMap.addOverlay(textOption);
+    }
+
     @Override
-    protected  void onActivityResult(int requestCode,int resultCode ,Intent data){
+    protected  void onActivityResult(int requestCode, int resultCode ,Intent data){
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d("App", "result!!! " + requestCode + " " + resultCode);
         if(requestCode == 1 && resultCode == 2){
-            String content = data.getStringExtra("data");
+            //String content = data.getStringExtra("data");
+            String locName = data.getStringExtra("location");
+            String description  = data.getStringExtra("description");
+            String longitude    = data.getStringExtra("long");
+            String latitude     = data.getStringExtra("lat");
+            String paths        = data.getStringExtra("paths");
+            markupList.add(new Points(latitude, longitude, markupList.size(), locName, description));
+
+            addMarkerToMap(locName, description, longitude, latitude, paths, markupList.size() - 1);
+
+            Toast.makeText(MainActivity.this, "Added markup Name: " + locName, Toast.LENGTH_SHORT).show();
             tLocate.setText("Returned.");
+        } else if (requestCode == 1 && requestCode == 3) {
+
         }
     }
 }
