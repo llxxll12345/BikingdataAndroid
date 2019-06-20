@@ -26,22 +26,29 @@ import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.TextOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.model.inner.Point;
+import com.bumptech.glide.Glide;
 import com.example.objects.Points;
+import com.example.utility.FileUtility;
+import com.example.utility.Utility;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import permissions.dispatcher.NeedsPermission;
@@ -64,13 +71,21 @@ public class MainActivity extends AppCompatActivity {
 
     private double latitude;
     private double longitude;
+    private LatLng latLng;
 
     private BitmapDescriptor markerIcon;
 
-    int counter;
-    Button mAdd, mMinus, mLocate;
-    TextView mTotal, tLocate;
+    final int[] photoIdsDisplay = {    R.id.imageView13
+                                        , R.id.imageView14
+                                        , R.id.imageView15
+                                        , R.id.imageView16
+                                        , R.id.imageView17
+                                        , R.id.imageView18 };
 
+    FloatingActionButton btnLocate, btnAddPt;
+    TextView tLocate;
+
+    ArrayList<String> tempPhotoUrlList;
     // list of markups
     ArrayList<Points> markupList;
 
@@ -149,6 +164,28 @@ public class MainActivity extends AppCompatActivity {
         myLocationClient.start();
     }
 
+    public void initMarkUpList() {
+        // Get from local
+        String text = FileUtility.readFilefromLocal(this, "markup.txt");
+        if (text != null) {
+            markupList = FileUtility.decodeData(text);
+            int id = 0;
+            for (Points markup: markupList) {
+                String paths = markup.getPhotoPath();
+                addMarkerToMap(markup.getLocationName()
+                        , markup.getDescription()
+                        , markup.getLongitude()
+                        , markup.getLongitude()
+                        , paths
+                        , id++
+                        );
+            }
+        } else {
+            markupList = new ArrayList<>();
+        }
+        // Get from server
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,42 +193,17 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        //test
-//        myMapView = (MapView) findViewById(R.id.bmapView);
+        initMap();
+        //markupList = new ArrayList<>();
+        initMarkUpList();
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            initMap();
-        } else {
-            MainActivityPermissionsDispatcher.ApplySuccessWithCheck(this);
-        }
-
-        markupList = new ArrayList<>();
-
-        counter = 0;
-        mAdd = (Button) findViewById(R.id.bAdd);
-        mMinus = (Button) findViewById(R.id.bMinus);
-        mTotal = (TextView) findViewById(R.id.tResult);
-
-        mAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                counter++;
-                mTotal.setText("Total: " + counter);
-            }
-        });
-
-        mMinus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                counter--;
-                mTotal.setText("Total: " + counter);
-            }
-        });
-
-        mLocate = (Button) findViewById(R.id.blocate);
+        //mLocate = (Button) findViewById(R.id.blocate);
+        btnLocate = (FloatingActionButton) findViewById(R.id.flbtn_locate);
+        btnAddPt = (FloatingActionButton) findViewById(R.id.flbtn_addpt);
         tLocate = (TextView) findViewById(R.id.tLocation);
 
-        mLocate.setOnClickListener(
+
+        btnLocate.setOnClickListener(
             new View.OnClickListener() {
                @Override
                public void onClick(View v) {
@@ -204,6 +216,45 @@ public class MainActivity extends AppCompatActivity {
            }
         );
 
+        btnAddPt.setOnClickListener(
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    final double curLat = latLng.latitude;
+                    final double curLong = latLng.longitude;
+
+                    System.out.println("Hit Latitude= " + curLat + " Longitude= " + curLong);
+                    // clear the map layer
+                    // myMap.clear();
+                    final LatLng point = new LatLng(curLat, curLong);
+
+
+                    Intent intent =new Intent(MainActivity.this, MarkerActivity.class);
+                    intent.putExtra("lat", String.format("%5.2f", curLat));
+                    intent.putExtra("long", String.format("%5.2f", curLong));
+                    startActivityForResult(intent, 1);
+                }
+            }
+        );
+
+
+        myMap.setOnMapStatusChangeListener(new BaiduMap.OnMapStatusChangeListener() {
+            @Override
+            public void onMapStatusChangeStart(MapStatus mapStatus) {
+            }
+            @Override
+            public void onMapStatusChangeStart(MapStatus mapStatus, int i) {
+            }
+            @Override
+            public void onMapStatusChange(MapStatus mapStatus) {
+            }
+            @Override
+            public void onMapStatusChangeFinish(MapStatus mapStatus) {
+                latLng = mapStatus.target;
+            }
+        });
+
 
         myMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
             @Override
@@ -212,8 +263,9 @@ public class MainActivity extends AppCompatActivity {
                 Bundle bundle = marker.getExtraInfo();
                 int id = bundle.getInt("id");
                 final String coords = bundle.getString("coord");
-                final String name = bundle.getString("name");
-                final String desp = bundle.getString("desp");
+                final String name   = bundle.getString("name");
+                final String desp   = bundle.getString("desp");
+                final String paths  = bundle.getString("paths");
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setIcon(R.drawable.marker);
@@ -224,6 +276,16 @@ public class MainActivity extends AppCompatActivity {
                 final TextView dCoord = (TextView) view.findViewById(R.id.dCoord);
                 final TextView dName = (TextView) view.findViewById(R.id.dName);
                 final TextView dDes = (TextView) view.findViewById(R.id.dDes);
+
+                String[] pathList = paths.split(";");
+                for (int i = 0; i < pathList.length; i++) {
+                    if (pathList[i] == null) continue;
+                    Log.d("path", i + " " + pathList[i]);
+                    ImageView photoView= view.findViewById(photoIdsDisplay[i]);
+                    Glide.with(MainActivity.this)
+                            .load(pathList[i])
+                            .into(photoView);
+                }
 
                 dCoord.setText(coords);
                 dName.setText(name);
@@ -254,64 +316,12 @@ public class MainActivity extends AppCompatActivity {
                     // myMap.clear();
                     final LatLng point = new LatLng(curLat, curLong);
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setIcon(R.drawable.marker);
-                    builder.setTitle("Add a new markup");
-                    View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.marker_dialog, null);
-                    builder.setView(view);
 
-                    final EditText locname = (EditText)view.findViewById(R.id.locationName);
-                    final EditText desp = (EditText)view.findViewById(R.id.description);
-                    final TextView tCoords = (TextView)view.findViewById(R.id.tCoords);
-                    tCoords.setText("Coords: " + curLat + ", " + curLong);
-
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            String a = locname.getText().toString().trim();
-                            String b = desp.getText().toString().trim();
-                            markupList.add(new Points(point, markupList.size(), a, b));
-
-                            Bundle myBundle = new Bundle();
-                            myBundle.putInt("id", markupList.size() - 1);
-                            myBundle.putString("coord", curLat + ", " + curLong);
-                            myBundle.putString("name", a);
-                            myBundle.putString("desp", b);
-
-                            View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.marker_layout, null);
-                            TextView locName = (TextView) view.findViewById(R.id.loc_name);
-                            locName.setText(a);
-                            markerIcon = BitmapDescriptorFactory.fromBitmap(Utility.getViewBitmap(view));
-
-                            MarkerOptions options = new MarkerOptions()
-                                    .position(point)
-                                    .icon(markerIcon)
-                                    .zIndex(markupList.size() - 1)
-                                    .draggable(true)
-                                    .extraInfo(myBundle);
-                            myMap.addOverlay(options);
-
-                            OverlayOptions textOption = new TextOptions()
-                                    //                    .bgColor(0xAAFFFF00)
-                                    .fontSize(16)
-                                    .fontColor(Color.BLACK)
-                                    .text("Point1")
-                                    .position(point);
-
-                            myMap.addOverlay(textOption);
-
-                            Toast.makeText(MainActivity.this, "Added markupname: " + a, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        }
-                    });
-                    builder.show();
+                    Intent intent =new Intent(MainActivity.this, MarkerActivity.class);
+                    intent.putExtra("lat", String.format("%5.2f", curLat));
+                    intent.putExtra("long", String.format("%5.2f", curLong));
+                    startActivityForResult(intent, 1);
                 }
-
                 @Override
                 public boolean onMapPoiClick(MapPoi mapPoi) {
                     return false;
@@ -323,35 +333,12 @@ public class MainActivity extends AppCompatActivity {
         switchButton.setOnClickListener(new View.OnClickListener() {
             @Override
              public void onClick(View v) {
-                //Intent intent =new Intent(MainActivity.this, ButtonSelectorActivity.class);
-                //startActivityForResult(intent, 1);
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setIcon(R.drawable.marker);
-                builder.setTitle("Username and password");
-                View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.pop_up_dialog, null);
-                builder.setView(view);
-
-                final EditText username = (EditText)view.findViewById(R.id.username);
-                final EditText password = (EditText)view.findViewById(R.id.password);
-
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String a = username.getText().toString().trim();
-                        String b = password.getText().toString().trim();
-                        Toast.makeText(MainActivity.this, "Username: " + a + ", Password: " + b, Toast.LENGTH_SHORT).show();
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
-                builder.show();
+                Intent intent =new Intent(MainActivity.this, UploadActivity.class);
+                startActivityForResult(intent, 1);
              }
         });
+
+        tempPhotoUrlList = new ArrayList<>();
     }
 
     @Override
@@ -362,8 +349,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
+        Log.i("App", " paused");
         super.onPause();
+        myMapView.onPause();    // Be careful !!!!
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.i("App", " destroyed");
         myMapView.onDestroy();
+        super.onDestroy();
     }
 
     @Override
@@ -396,7 +391,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 申请权限成功时
+     *      Successfully acquired permission to access coarse location
      */
     @NeedsPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
     void ApplySuccess() {
@@ -454,7 +449,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 被拒绝并且不再提醒,提示用户去设置界面重新打开权限
+     *      Denided -> ask the user to activate permissions in settings
      */
     private void AskForPermission() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -476,12 +471,57 @@ public class MainActivity extends AppCompatActivity {
         builder.create().show();
     }
 
+    void addMarkerToMap(String locName, String description, String longitude, String latitude, String paths, int id) {
+        Bundle myBundle = new Bundle();
+        myBundle.putInt("id",id);
+        myBundle.putString("coord", latitude + ", " + longitude);
+        myBundle.putString("name", locName);
+        myBundle.putString("desp", description);
+        myBundle.putString("paths", paths);
+
+        View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.marker_layout, null);
+        TextView locNameText = (TextView) view.findViewById(R.id.loc_name);
+        locNameText.setText(locName);
+        markerIcon = BitmapDescriptorFactory.fromBitmap(Utility.getViewBitmap(view));
+
+        LatLng point = new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude));
+        MarkerOptions options = new MarkerOptions()
+                .position(point)
+                .icon(markerIcon)
+                .zIndex(id)
+                .draggable(true)
+                .extraInfo(myBundle);
+        myMap.addOverlay(options);
+
+        OverlayOptions textOption = new TextOptions()
+                //                    .bgColor(0xAAFFFF00)
+                .fontSize(16)
+                .fontColor(Color.BLACK)
+                .text(locName)
+                .position(point);
+        myMap.addOverlay(textOption);
+    }
+
     @Override
-    protected  void onActivityResult(int requestCode,int resultCode ,Intent data){
+    protected  void onActivityResult(int requestCode, int resultCode ,Intent data){
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d("App", "result!!! " + requestCode + " " + resultCode);
         if(requestCode == 1 && resultCode == 2){
-            String content = data.getStringExtra("data");
+            //String content = data.getStringExtra("data");
+            String locName = data.getStringExtra("location");
+            String description  = data.getStringExtra("description");
+            String longitude    = data.getStringExtra("long");
+            String latitude     = data.getStringExtra("lat");
+            String paths        = data.getStringExtra("paths");
+            markupList.add(new Points(latitude, longitude, markupList.size(), locName, description));
+            FileUtility.saveFiletoLocal(this, "markup.txt", FileUtility.formatData(markupList));
+
+            addMarkerToMap(locName, description, longitude, latitude, paths, markupList.size() - 1);
+
+            Toast.makeText(MainActivity.this, "Added markup Name: " + locName, Toast.LENGTH_SHORT).show();
             tLocate.setText("Returned.");
+        } else if (requestCode == 1 && requestCode == 3) {
+
         }
     }
 }

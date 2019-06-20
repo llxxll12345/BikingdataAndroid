@@ -1,37 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    tools:context=".MarkerActivity">
 
     <TextView
         android:id="@+id/tCoords"
-        android:text="@string/app_name"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="16dp" />
 
     <EditText
         android:id="@+id/locationName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/tCoords"
-        android:hint="Location name"/>
+        android:hint="Location name"
+        app:layout_constraintStart_toStartOf="@+id/tCoords"
+        app:layout_constraintTop_toBottomOf="@+id/tCoords" />
 
     <EditText
         android:id="@+id/description"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_below="@id/locationName"
-        android:hint="Description"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:ems="10"
+        android:hint="Description"
         android:inputType="textMultiLine"
-        />
+        app:layout_constraintBottom_toTopOf="@+id/btn_photo_camera"
+        app:layout_constraintStart_toStartOf="@+id/locationName"
+        app:layout_constraintTop_toBottomOf="@+id/locationName"
+        app:layout_constraintVertical_bias="0.56" />
 
     <Button
-        android:id="@+id/addPhoto"
+        android:id="@+id/btn_photo_camera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/description"
-        android:text="addPhoto" />
+        android:layout_marginTop="220dp"
+        android:text="Camera"
+        app:layout_constraintTop_toBottomOf="@+id/locationName"
+        tools:layout_editor_absoluteX="16dp" />
 
 
-</RelativeLayout>
+
+    <ImageView
+        android:id="@+id/image3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/description"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@+id/image2"
+        app:layout_constraintTop_toTopOf="@+id/image2"
+        app:srcCompat="@drawable/ic_launcher_background" />
+
+    <ImageView
+        android:id="@+id/image2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/description"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@+id/image1"
+        app:layout_constraintTop_toTopOf="@+id/image1"
+        app:srcCompat="@drawable/ic_launcher_background" />
+
+    <ImageView
+        android:id="@+id/image1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/btn_photo_camera"
+        app:srcCompat="@drawable/ic_launcher_background"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <ImageView
+        android:id="@+id/image4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@+id/image1"
+        app:srcCompat="@drawable/ic_launcher_background"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <ImageView
+        android:id="@+id/image5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintStart_toEndOf="@+id/image4"
+        app:layout_constraintTop_toBottomOf="@+id/image2"
+        app:srcCompat="@drawable/ic_launcher_background" />
+
+    <ImageView
+        android:id="@+id/image6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintStart_toEndOf="@+id/image5"
+        app:layout_constraintTop_toBottomOf="@+id/image3"
+        app:srcCompat="@drawable/ic_launcher_background" />
+
+    <Button
+        android:id="@+id/btn_marker_ok"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="28dp"
+        android:text="Save"
+        app:layout_constraintStart_toStartOf="@+id/image4"
+        app:layout_constraintTop_toBottomOf="@+id/image4" />
+
+    <Button
+        android:id="@+id/btn_marker_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="28dp"
+        android:text="Cancel"
+        app:layout_constraintStart_toEndOf="@+id/btn_marker_ok"
+        app:layout_constraintTop_toBottomOf="@+id/image5" />
+
+    <Button
+        android:id="@+id/btn_photo_album"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="8dp"
+        android:text="Album"
+        app:layout_constraintStart_toEndOf="@+id/btn_photo_camera"
+        app:layout_constraintTop_toBottomOf="@+id/description" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
