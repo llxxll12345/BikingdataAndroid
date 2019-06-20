@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 
 import com.baidu.location.BDAbstractLocationListener;
@@ -26,8 +25,12 @@ import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.TextOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.model.inner.Point;
 import com.bumptech.glide.Glide;
 import com.example.objects.Points;
+import com.example.utility.FileUtility;
+import com.example.utility.Utility;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -40,11 +43,11 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import permissions.dispatcher.NeedsPermission;
@@ -67,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
     private double latitude;
     private double longitude;
+    private LatLng latLng;
 
     private BitmapDescriptor markerIcon;
 
@@ -77,9 +81,8 @@ public class MainActivity extends AppCompatActivity {
                                         , R.id.imageView17
                                         , R.id.imageView18 };
 
-    int counter;
-    Button mAdd, mMinus, mLocate;
-    TextView mTotal, tLocate;
+    FloatingActionButton btnLocate, btnAddPt;
+    TextView tLocate;
 
     ArrayList<String> tempPhotoUrlList;
     // list of markups
@@ -160,6 +163,28 @@ public class MainActivity extends AppCompatActivity {
         myLocationClient.start();
     }
 
+    public void initMarkUpList() {
+        // Get from local
+        String text = FileUtility.readFilefromLocal(this, "markup.txt");
+        if (text != null) {
+            markupList = FileUtility.decodeData(text);
+            int id = 0;
+            for (Points markup: markupList) {
+                String paths = markup.getPhotoPath();
+                addMarkerToMap(markup.getLocationName()
+                        , markup.getDescription()
+                        , markup.getLongitude()
+                        , markup.getLongitude()
+                        , paths
+                        , id++
+                        );
+            }
+        } else {
+            markupList = new ArrayList<>();
+        }
+        // Get from server
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,39 +192,18 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            initMap();
-        } else {
-            MainActivityPermissionsDispatcher.ApplySuccessWithCheck(this);
-        }
+        initMap();
 
-        markupList = new ArrayList<>();
+        //markupList = new ArrayList<>();
+        initMarkUpList();
 
-        counter = 0;
-        mAdd = (Button) findViewById(R.id.bAdd);
-        mMinus = (Button) findViewById(R.id.bMinus);
-        mTotal = (TextView) findViewById(R.id.tResult);
-
-        mAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                counter++;
-                mTotal.setText("Total: " + counter);
-            }
-        });
-
-        mMinus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                counter--;
-                mTotal.setText("Total: " + counter);
-            }
-        });
-
-        mLocate = (Button) findViewById(R.id.blocate);
+        //mLocate = (Button) findViewById(R.id.blocate);
+        btnLocate = (FloatingActionButton) findViewById(R.id.flbtn_locate);
+        btnAddPt = (FloatingActionButton) findViewById(R.id.flbtn_addpt);
         tLocate = (TextView) findViewById(R.id.tLocation);
 
-        mLocate.setOnClickListener(
+
+        btnLocate.setOnClickListener(
             new View.OnClickListener() {
                @Override
                public void onClick(View v) {
@@ -211,6 +215,45 @@ public class MainActivity extends AppCompatActivity {
                }
            }
         );
+
+        btnAddPt.setOnClickListener(
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    final double curLat = latLng.latitude;
+                    final double curLong = latLng.longitude;
+
+                    System.out.println("Hit Latitude= " + curLat + " Longitude= " + curLong);
+                    // clear the map layer
+                    // myMap.clear();
+                    final LatLng point = new LatLng(curLat, curLong);
+
+
+                    Intent intent =new Intent(MainActivity.this, MarkerActivity.class);
+                    intent.putExtra("lat", String.format("%5.2f", curLat));
+                    intent.putExtra("long", String.format("%5.2f", curLong));
+                    startActivityForResult(intent, 1);
+                }
+            }
+        );
+
+
+        myMap.setOnMapStatusChangeListener(new BaiduMap.OnMapStatusChangeListener() {
+            @Override
+            public void onMapStatusChangeStart(MapStatus mapStatus) {
+            }
+            @Override
+            public void onMapStatusChangeStart(MapStatus mapStatus, int i) {
+            }
+            @Override
+            public void onMapStatusChange(MapStatus mapStatus) {
+            }
+            @Override
+            public void onMapStatusChangeFinish(MapStatus mapStatus) {
+                latLng = mapStatus.target;
+            }
+        });
 
 
         myMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
@@ -236,6 +279,7 @@ public class MainActivity extends AppCompatActivity {
 
                 String[] pathList = paths.split(";");
                 for (int i = 0; i < pathList.length; i++) {
+                    if (pathList[i] == null) continue;
                     Log.d("path", i + " " + pathList[i]);
                     ImageView photoView= view.findViewById(photoIdsDisplay[i]);
                     Glide.with(MainActivity.this)
@@ -291,31 +335,6 @@ public class MainActivity extends AppCompatActivity {
              public void onClick(View v) {
                 Intent intent =new Intent(MainActivity.this, UploadActivity.class);
                 startActivityForResult(intent, 1);
-
-                /*AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setIcon(R.drawable.marker);
-                builder.setTitle("Username and password");
-                View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.pop_up_dialog, null);
-                builder.setView(view);
-
-                final EditText username = (EditText)view.findViewById(R.id.username);
-                final EditText password = (EditText)view.findViewById(R.id.password);
-
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String a = username.getText().toString().trim();
-                        String b = password.getText().toString().trim();
-                        Toast.makeText(MainActivity.this, "Username: " + a + ", Password: " + b, Toast.LENGTH_SHORT).show();
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
-                builder.show();*/
              }
         });
 
@@ -495,6 +514,7 @@ public class MainActivity extends AppCompatActivity {
             String latitude     = data.getStringExtra("lat");
             String paths        = data.getStringExtra("paths");
             markupList.add(new Points(latitude, longitude, markupList.size(), locName, description));
+            FileUtility.saveFiletoLocal(this, "markup.txt", FileUtility.formatData(markupList));
 
             addMarkerToMap(locName, description, longitude, latitude, paths, markupList.size() - 1);
 

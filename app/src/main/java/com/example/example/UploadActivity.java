@@ -19,12 +19,11 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.util.Util;
+import com.example.utility.Utility;
 
 import java.io.File;
 import java.util.List;
 
-import permissions.dispatcher.NeedsPermission;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class UploadActivity extends AppCompatActivity implements View.OnClickListener, EasyPermissions.PermissionCallbacks {
