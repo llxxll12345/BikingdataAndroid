@@ -23,6 +23,7 @@ import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
+import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.map.TextOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.model.inner.Point;
@@ -42,8 +43,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,6 +59,8 @@ import permissions.dispatcher.OnPermissionDenied;
 import permissions.dispatcher.OnShowRationale;
 import permissions.dispatcher.PermissionRequest;
 import permissions.dispatcher.RuntimePermissions;
+
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 @RuntimePermissions
 public class MainActivity extends AppCompatActivity {
@@ -81,24 +86,37 @@ public class MainActivity extends AppCompatActivity {
                                         , R.id.imageView17
                                         , R.id.imageView18 };
 
-    FloatingActionButton btnLocate, btnAddPt;
-    TextView tLocate;
+    FloatingActionButton btnLocate, btnAddPt, btnRoute;
+    TextView tLocate, txApp;
+
+    boolean recordingRoute = false;
 
     ArrayList<String> tempPhotoUrlList;
     // list of markups
     ArrayList<Points> markupList;
+
+    ArrayList<LatLng> routeList;
+
+    private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
 
     class MyLocationListener extends BDAbstractLocationListener {
         @Override
         public void onReceiveLocation(BDLocation location) {
             latitude = location.getLatitude();
             longitude = location.getLongitude();
+            Log.d("Location: ", latitude + ", " + longitude);
 
+            if (recordingRoute) {
+                routeList.add(new LatLng(latitude, longitude));
+                txApp.setText("New location: " + latitude + ", " + longitude);
+            }
 
             if (isFirstLocation) {
                 isFirstLocation = false;
                 setPosToCenter(myMap, location, true);
-                tLocate.setText("tLocation Coords: " + latitude + " " + longitude + " City: " + location.getCity());
+                tLocate.setText("坐标:" + String.format("%.2f", latitude) + ", " +
+                        String.format("%.2f", longitude) + "\n城市: " + location.getCity());
+
             }
         }
     }
@@ -166,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
     public void initMarkUpList() {
         // Get from local
         String text = FileUtility.readFilefromLocal(this, "markup.txt");
-        if (text != null) {
+        /*if (text != null) {
             markupList = FileUtility.decodeData(text);
             int id = 0;
             for (Points markup: markupList) {
@@ -179,9 +197,9 @@ public class MainActivity extends AppCompatActivity {
                         , id++
                         );
             }
-        } else {
-            markupList = new ArrayList<>();
-        }
+        } else {*/
+        markupList = new ArrayList<>();
+        //}
         // Get from server
     }
 
@@ -198,9 +216,12 @@ public class MainActivity extends AppCompatActivity {
         initMarkUpList();
 
         //mLocate = (Button) findViewById(R.id.blocate);
+        btnRoute  = (FloatingActionButton) findViewById(R.id.flbtn_route);
         btnLocate = (FloatingActionButton) findViewById(R.id.flbtn_locate);
-        btnAddPt = (FloatingActionButton) findViewById(R.id.flbtn_addpt);
+        btnAddPt  = (FloatingActionButton) findViewById(R.id.flbtn_addpt);
         tLocate = (TextView) findViewById(R.id.tLocation);
+        txApp = (TextView) findViewById(R.id.tx_app);
+
 
 
         btnLocate.setOnClickListener(
@@ -213,14 +234,36 @@ public class MainActivity extends AppCompatActivity {
                    myMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
                    tLocate.setText("Location: " + latitude + " " + longitude);
                }
-           }
+            }
+        );
+
+
+        btnRoute.setOnClickListener(
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (recordingRoute) {
+                        recordingRoute = false;
+                        routeList.add(new LatLng(latitude, longitude));
+                        OverlayOptions ooPolyline = new PolylineOptions()
+                                .width(10)
+                                .color(Integer.valueOf(Color.BLUE))
+                                .points(routeList);
+                        myMap.addOverlay(ooPolyline);
+                        txApp.setText("Recording Route Ends");
+                    } else {
+                        recordingRoute = true;
+                        txApp.setText("Recording Route");
+                        routeList = new ArrayList<>();
+                    }
+                }
+            }
         );
 
         btnAddPt.setOnClickListener(
             new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     final double curLat = latLng.latitude;
                     final double curLong = latLng.longitude;
 
@@ -329,16 +372,34 @@ public class MainActivity extends AppCompatActivity {
             }
         );
 
-        Button switchButton =(Button)findViewById(R.id.bSwitch);
+        /*Button switchButton =(Button)findViewById(R.id.bSwitch);
         switchButton.setOnClickListener(new View.OnClickListener() {
             @Override
              public void onClick(View v) {
                 Intent intent =new Intent(MainActivity.this, UploadActivity.class);
                 startActivityForResult(intent, 1);
              }
-        });
+        });*/
 
         tempPhotoUrlList = new ArrayList<>();
+
+        if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
+        }
+
+        Spinner spinner = (Spinner) findViewById(R.id.spinner_func);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String result = adapterView.getItemAtPosition(i).toString();
+                Toast.makeText(MainActivity.this, result, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
     @Override

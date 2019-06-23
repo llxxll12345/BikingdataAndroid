@@ -27,6 +27,7 @@ public class FileUtility {
 
     public static ArrayList<Points> decodeData(String s) {
         ArrayList<Points> arr = new ArrayList<>();
+        Log.d("File", s);
         String[] pointData = s.split("@");
         for (String pointStr: pointData) {
             Points pt = new Points(pointStr);

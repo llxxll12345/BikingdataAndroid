@@ -11,8 +11,8 @@
 
     <TextView
         android:id="@+id/tLocation"
-        android:layout_width="69dp"
-        android:layout_height="28dp"
+        android:layout_width="270dp"
+        android:layout_height="53dp"
         android:text="Location: "
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.467"
@@ -24,12 +24,22 @@
 
     <com.baidu.mapapi.map.MapView
         android:id="@+id/bmapView"
-        android:layout_width="343dp"
-        android:layout_height="314dp"
+        android:layout_width="361dp"
+        android:layout_height="333dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="112dp"
+        android:layout_marginTop="60dp"
         android:clickable="true"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tx_app"
+        android:layout_width="354dp"
+        android:layout_height="39dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="APP info"
+        app:layout_constraintStart_toStartOf="@+id/bmapView"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
