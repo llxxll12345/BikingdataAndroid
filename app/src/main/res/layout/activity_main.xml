@@ -12,20 +12,9 @@
         layout="@layout/content_main"
         android:layout_width="393dp"
         android:layout_height="466dp"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar2"
-        tools:layout_editor_absoluteX="3dp" />
-
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar2"
-        android:layout_width="452dp"
-        android:layout_height="50dp"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
-        tools:layout_editor_absoluteX="-23dp"
-        tools:layout_editor_absoluteY="-6dp" />
+        android:layout_marginTop="56dp"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="9dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/flbtn_route"
@@ -59,6 +48,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/flbtn_addpt"
         app:layout_constraintTop_toTopOf="@+id/flbtn_addpt" />
+
     <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
@@ -95,13 +85,30 @@
 
     <Spinner
         android:id="@+id/spinner_func"
-        android:entries="@array/pages"
         android:layout_width="127dp"
         android:layout_height="33dp"
-        android:layout_marginStart="248dp"
+        android:layout_marginStart="48dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintStart_toStartOf="@+id/include"
-        app:layout_constraintTop_toTopOf="@+id/toolbar2" />
+        android:entries="@array/pages"
+        app:layout_constraintStart_toEndOf="@+id/btn_drawer_open"
+        app:layout_constraintTop_toTopOf="@+id/btn_drawer_open" />
+
+    <Button
+        android:id="@+id/btn_drawer_open"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="我的"
+        app:layout_constraintStart_toStartOf="@+id/flbtn_locate"
+        app:layout_constraintTop_toTopOf="@+id/include" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="9dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

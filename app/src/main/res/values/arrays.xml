@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="pages">
-        <item>功能</item>
-        <item>登录</item>
-        <item>同步数据</item>
-        <item>我的表定点</item>
-        <item>我的路线</item>
-        <item>查看附近的人</item>
-        <item>屏蔽的人/标记点</item>
+        <item>更多</item>
         <item>设置</item>
+        <item>搜索</item>
         <item>说明</item>
+    </string-array>
+    <string-array name="mine">
+        <item>登录/注册</item>
+    </string-array>
+    <string-array name="mine_login">
+        <item>登出</item>
+        <item>同步数据</item>
+        <item>管理标记点</item>
+        <item>管理路线</item>
+        <item>我的历史</item>
+        <item></item>
     </string-array>
 </resources>

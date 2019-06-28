@@ -1,6 +1,7 @@
 package com.example.example;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -28,7 +29,9 @@ import com.baidu.mapapi.map.TextOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.model.inner.Point;
 import com.bumptech.glide.Glide;
+import com.example.fragment.SlideMenu;
 import com.example.objects.Points;
+import com.example.utility.DensityUtil;
 import com.example.utility.FileUtility;
 import com.example.utility.Utility;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -79,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
     private BitmapDescriptor markerIcon;
 
+
     final int[] photoIdsDisplay = {    R.id.imageView13
                                         , R.id.imageView14
                                         , R.id.imageView15
@@ -96,6 +100,12 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Points> markupList;
 
     ArrayList<LatLng> routeList;
+
+    private Context mContext;
+    //屏幕宽度
+    private int mScreenWidth = 0;
+    private SlideMenu mSlideViewLeft;
+    private SlideMenu mSlideViewRight;
 
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
 
@@ -400,6 +410,45 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        initSlideMenu();
+    }
+
+
+    private void initSlideMenu() {
+        mContext = this;
+        mScreenWidth = DensityUtil.getScreenWidthAndHeight(mContext)[0];
+        mSlideViewRight = SlideMenu.create(this, SlideMenu.Positon.RIGHT);
+        View menuViewRight = LayoutInflater.from(mContext).inflate(R.layout.user_drawer,null);
+        mSlideViewRight.setMenuView(MainActivity.this, menuViewRight);
+        mSlideViewRight.setMenuWidth(mScreenWidth * 7 / 9);
+        Button right = (Button)findViewById(R.id.btn_drawer_open);
+        right.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                if (!mSlideViewRight.isShow())
+                    mSlideViewRight.show();
+            }
+        });
+        menuViewRight.findViewById(R.id.iv_back).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mSlideViewLeft.isShow()) {
+                    mSlideViewLeft.dismiss();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(mSlideViewLeft.isShow()){
+            mSlideViewLeft.dismiss();
+            return ;
+        }
+        super.onBackPressed();
     }
 
     @Override
@@ -426,8 +475,20 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        super.onCreateOptionsMenu(menu);
         return true;
     }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public void onOptionsMenuClosed(Menu menu) {
+        super.onOptionsMenuClosed(menu);
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -437,8 +498,20 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.btn_settings:
+                Toast.makeText(this, "设置", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.btn_search:
+                Toast.makeText(this, "搜索", Toast.LENGTH_SHORT).show();
+
+                break;
+            case R.id.btn_about:
+                Toast.makeText(this, "关于", Toast.LENGTH_SHORT).show();
+                break;
+
+            default:
+                break;
         }
 
         return super.onOptionsItemSelected(item);
