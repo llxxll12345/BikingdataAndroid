@@ -39,6 +39,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.provider.Settings;
 import android.util.Log;
@@ -101,10 +102,11 @@ public class MainActivity extends AppCompatActivity {
 
     ArrayList<LatLng> routeList;
 
+    /* For sliding menu */
     private Context mContext;
-    //屏幕宽度
+
     private int mScreenWidth = 0;
-    private SlideMenu mSlideViewLeft;
+    // private SlideMenu mSlideViewLeft;
     private SlideMenu mSlideViewRight;
 
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
@@ -411,6 +413,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setTitle("BikingData");
+
         initSlideMenu();
     }
 
@@ -435,8 +441,8 @@ public class MainActivity extends AppCompatActivity {
         menuViewRight.findViewById(R.id.iv_back).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mSlideViewLeft.isShow()) {
-                    mSlideViewLeft.dismiss();
+                if (mSlideViewRight.isShow()) {
+                    mSlideViewRight.dismiss();
                 }
             }
         });
@@ -444,8 +450,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(mSlideViewLeft.isShow()){
-            mSlideViewLeft.dismiss();
+        if(mSlideViewRight.isShow()){
+            mSlideViewRight.dismiss();
             return ;
         }
         super.onBackPressed();

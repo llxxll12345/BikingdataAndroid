@@ -18,32 +18,21 @@ import android.widget.TextView;
 import com.example.example.R;
 import com.example.utility.DensityUtil;
 
-/**自定义侧滑View控件
- * Created by caizhiming on 2015/9/18.
- */
-public class SlideMenu extends RelativeLayout{
 
-    //侧滑方向-从哪侧滑出
+public class SlideMenu extends RelativeLayout{
     public static enum Positon {
         LEFT, RIGHT
     }
     private Context mContext;
     private Activity mActivity;
     private Scroller mScroller = null;
-    //侧滑菜单布局View
     private View mMenuView;
-    //底部蒙层View
     private View mMaskView;
     private int mMenuWidth = 0;
-    //屏幕宽度
     private int mScreenWidth = 0;
-    //是否在滑动中
     private boolean mIsMoving = false;
-    //显示登录界面与否
     private boolean mShow = false;
-    //滑动动画时间
     private int mDuration = 600;
-    //缺省侧滑方向为左
     private Positon mPositon = Positon.LEFT;
 
     public SlideMenu(Context context) {
@@ -56,21 +45,21 @@ public class SlideMenu extends RelativeLayout{
         super(context, attrs, defStyle);
         init(context);
     }
-    /**
-     * 创建侧滑菜单View
-     */
+
+
     public static SlideMenu create(Activity activity) {
         SlideMenu view = new SlideMenu(activity);
         return view;
     }
-    /**
-     * 创建侧滑菜单View
-     */
+
+
     public static SlideMenu create(Activity activity, Positon positon) {
         SlideMenu view = new SlideMenu(activity);
         view.mPositon = positon;
         return view;
     }
+
+
     private void init(Context context) {
         // TODO Auto-generated method stub
         mContext = context;
@@ -82,15 +71,14 @@ public class SlideMenu extends RelativeLayout{
 
         attachToContentView((Activity) context, mPositon);
     }
-    /**
-     * 创建 蒙层View并添加到contentView中
-     */
+
+
     private void attachToContentView(Activity activity, Positon positon) {
         mPositon = positon;
         ViewGroup contentFrameLayout = (ViewGroup) activity.findViewById(android.R.id.content);
         ViewGroup contentView = ((ViewGroup) contentFrameLayout.getChildAt(0));
         mMaskView = new View(activity);
-        mMaskView.setBackgroundColor(mContext.getColor(R.color.colorBlue));
+        mMaskView.setBackgroundColor(mContext.getColor(R.color.colorLightGray));
         contentView.addView(mMaskView, contentView.getLayoutParams());
         mMaskView.setVisibility(View.GONE);
         mMaskView.setClickable(true);
@@ -103,18 +91,16 @@ public class SlideMenu extends RelativeLayout{
             }
         });
     }
-    /**
-     * 设置侧滑菜单View的宽度
-     */
+
+
     public void setMenuWidth(int width) {
         ViewGroup.LayoutParams params = this.getLayoutParams();
         params.width = width;
         mMenuWidth = width;
         this.setLayoutParams(params);
     }
-    /**
-     * 设置侧滑菜单View，并添加到DectorView->LinearLayout->内容显示区域View中
-     */
+
+
     public void setMenuView(Activity activity, View view) {
         mActivity = activity;
         mMenuView = view;
@@ -162,6 +148,8 @@ public class SlideMenu extends RelativeLayout{
         }
         this.setLayoutParams(layoutParams);
     }
+
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()){
@@ -174,9 +162,8 @@ public class SlideMenu extends RelativeLayout{
         }
         return super.onTouchEvent(event);
     }
-    /**
-     * 显示侧滑菜单View
-     */
+
+
     public void show(){
         if(isShow() && !mIsMoving)
             return;
@@ -191,9 +178,8 @@ public class SlideMenu extends RelativeLayout{
         switchMaskView(true);
         mShow = true;
     }
-    /**
-     * 蒙层显示开关
-     */
+
+
     private void switchMaskView(boolean bShow){
         if(bShow){
             mMaskView.setVisibility(View.VISIBLE);
@@ -204,9 +190,8 @@ public class SlideMenu extends RelativeLayout{
             mMaskView.setVisibility(View.GONE);
         }
     }
-    /**
-     * 关闭侧滑菜单View
-     */
+
+
     public void dismiss() {
         // TODO Auto-generated method stub
         if(!isShow() && !mIsMoving)
@@ -222,15 +207,17 @@ public class SlideMenu extends RelativeLayout{
         switchMaskView(false);
         mShow = false;
     }
+
+
     public boolean isShow(){
         return mShow;
     }
+
+
     @Override
     public void computeScroll() {
-        // TODO Auto-generated method stub
         if (mScroller.computeScrollOffset()) {
             scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
-            // 更新界面
             postInvalidate();
             mIsMoving = true;
         } else {
@@ -238,9 +225,8 @@ public class SlideMenu extends RelativeLayout{
         }
         super.computeScroll();
     }
-    /**
-     * 拖动移动
-     */
+
+
     public void startScroll(int startX, int dx,int duration){
         mIsMoving = true;
         mScroller.startScroll(startX,0,dx,0,duration);

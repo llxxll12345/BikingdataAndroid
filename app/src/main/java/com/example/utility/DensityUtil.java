@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
@@ -63,45 +64,42 @@ public class DensityUtil {
                 .getSystemService(Context.WINDOW_SERVICE);
 
         DisplayMetrics dm = new DisplayMetrics();
-        // 获取屏幕信息
+
         mWm.getDefaultDisplay().getMetrics(dm);
 
         int screenWidth = dm.widthPixels;
 
-        int screenHeigh = dm.heightPixels;
+        int screenHeight = dm.heightPixels;
 
-        return new int[] { screenWidth, screenHeigh };
+        return new int[] { screenWidth, screenHeight };
     }
 
     public static void addOnSoftKeyBoardVisibleListener(final Activity activity, final ScrollView scrollView) {
         final View decorView = activity.getWindow().getDecorView();
         decorView.getViewTreeObserver().addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        Rect rect = new Rect();
-                        decorView.getWindowVisibleDisplayFrame(rect);
-                        int displayHight = rect.bottom - rect.top;
-                        int hight = decorView.getHeight();
-                        boolean visible = (double) displayHight / hight < 0.8;// 决断键盘是弹�?
-                        System.out.println("===监听" + visible);
-                        if (visible) {
-
-                            Handler mHandler = new Handler();
-                            mHandler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-//									scrollView
-//											.fullScroll(ScrollView.FOCUS_DOWN);// ScrollView滚动到底
-                                    scrollView.scrollTo(0, DensityUtil.dip2px(activity, 167));
-                                }
-                            }, 50);
-                        }
+            new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    Rect rect = new Rect();
+                    decorView.getWindowVisibleDisplayFrame(rect);
+                    int displayHight = rect.bottom - rect.top;
+                    int hight = decorView.getHeight();
+                    boolean visible = (double) displayHight / hight < 0.8;
+                    Log.d("Density", "Listening");
+                    if (visible) {
+                        Handler mHandler = new Handler();
+                        mHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                scrollView.scrollTo(0, DensityUtil.dip2px(activity, 167));
+                            }
+                        }, 50);
                     }
-                });
+                }
+            });
     }
 
-    //获取TextView被截断之后的字符串
+
     public static String getEllipsisedText(TextView textView) {
         try {
             String text = textView.getText().toString();
