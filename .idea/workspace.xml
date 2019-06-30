@@ -12,9 +12,7 @@
     <last-search-timestamp>1561635718018</last-search-timestamp>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bea8a1dc-4007-487a-8722-c4f77ccabb20" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/settings_layout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/settings_layout.xml" afterDir="false" />
-    </list>
+    <list default="true" id="bea8a1dc-4007-487a-8722-c4f77ccabb20" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -415,7 +413,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49759036" visible="true" weight="0.17668097" />
       <window_info id="Structure" order="1" sideWeight="0.50240964" side_tool="true" weight="0.25894135" />
@@ -437,7 +434,7 @@
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32891566" />
       <window_info anchor="bottom" id="Build" order="7" weight="0.25421688" />
       <window_info anchor="bottom" id="sbt-shell-toolwindow" order="8" />
-      <window_info anchor="bottom" id="Terminal" order="9" weight="0.2060241" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="9" visible="true" weight="0.33493975" />
       <window_info anchor="bottom" id="Docker" order="10" show_stripe_button="false" />
       <window_info anchor="bottom" id="CheckStyle" order="11" />
       <window_info anchor="bottom" id="Event Log" order="12" side_tool="true" />
@@ -456,7 +453,7 @@
       <window_info anchor="right" id="Database" order="8" />
       <window_info anchor="right" id="Palette&#9;" order="9" />
       <window_info anchor="right" id="Theme Preview" order="10" />
-      <window_info active="true" anchor="right" id="Preview" order="11" visible="true" weight="0.39985693" />
+      <window_info anchor="right" id="Preview" order="11" visible="true" weight="0.39985693" />
       <window_info anchor="right" id="Device File Explorer" order="12" side_tool="true" />
       <window_info anchor="right" id="Assistant" order="13" weight="0.33476394" />
     </layout>
