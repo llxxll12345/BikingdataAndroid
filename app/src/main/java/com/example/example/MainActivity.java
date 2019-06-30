@@ -25,6 +25,7 @@ import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.PolylineOptions;
+import com.baidu.mapapi.map.Text;
 import com.baidu.mapapi.map.TextOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.model.inner.Point;
@@ -319,6 +320,8 @@ public class MainActivity extends AppCompatActivity {
                 int id = bundle.getInt("id");
                 final String coords = bundle.getString("coord");
                 final String name   = bundle.getString("name");
+                final String creator = bundle.getString("creator");
+                final String date   = bundle.getString("date");
                 final String desp   = bundle.getString("desp");
                 final String paths  = bundle.getString("paths");
 
@@ -330,6 +333,8 @@ public class MainActivity extends AppCompatActivity {
 
                 final TextView dCoord = (TextView) view.findViewById(R.id.dCoord);
                 final TextView dName = (TextView) view.findViewById(R.id.dName);
+                final TextView dTime = (TextView) view.findViewById(R.id.dTime);
+                final TextView dCreator = (TextView) view.findViewById(R.id.dCreator);
                 final TextView dDes = (TextView) view.findViewById(R.id.dDes);
 
                 String[] pathList = paths.split(";");
@@ -345,6 +350,8 @@ public class MainActivity extends AppCompatActivity {
                 dCoord.setText(coords);
                 dName.setText(name);
                 dDes.setText(desp);
+                dCreator.setText(creator);
+                dTime.setText(date);
 
                 builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
                     @Override
@@ -611,22 +618,25 @@ public class MainActivity extends AppCompatActivity {
         builder.create().show();
     }
 
-    void addMarkerToMap(String locName, String description, String longitude, String latitude, String paths, int id) {
+    void addMarkerToMap(Points point, int id) {
         Bundle myBundle = new Bundle();
         myBundle.putInt("id",id);
-        myBundle.putString("coord", latitude + ", " + longitude);
-        myBundle.putString("name", locName);
-        myBundle.putString("desp", description);
-        myBundle.putString("paths", paths);
+        myBundle.putString("coord", point.getLatitude() + ", " + point.getLongitude());
+        myBundle.putString("name", point.getLocationName());
+        myBundle.putString("desp", point.getDescription());
+        myBundle.putString("paths", point.getPhotoPath());
+        myBundle.putString("creator", point.getCreator());
+        myBundle.putString("date", point.getDate());
 
         View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.marker_layout, null);
         TextView locNameText = (TextView) view.findViewById(R.id.loc_name);
-        locNameText.setText(locName);
+        locNameText.setText(point.getLocationName());
         markerIcon = BitmapDescriptorFactory.fromBitmap(Utility.getViewBitmap(view));
 
-        LatLng point = new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude));
+        LatLng coords = new LatLng(Double.parseDouble(point.getLatitude()),
+                Double.parseDouble(point.getLongitude()));
         MarkerOptions options = new MarkerOptions()
-                .position(point)
+                .position(coords)
                 .icon(markerIcon)
                 .zIndex(id)
                 .draggable(true)
@@ -637,8 +647,8 @@ public class MainActivity extends AppCompatActivity {
                 //                    .bgColor(0xAAFFFF00)
                 .fontSize(16)
                 .fontColor(Color.BLACK)
-                .text(locName)
-                .position(point);
+                .text(point.getLocationName())
+                .position(coords);
         myMap.addOverlay(textOption);
     }
 
@@ -653,10 +663,12 @@ public class MainActivity extends AppCompatActivity {
             String longitude    = data.getStringExtra("long");
             String latitude     = data.getStringExtra("lat");
             String paths        = data.getStringExtra("paths");
-            markupList.add(new Points(latitude, longitude, markupList.size(), locName, description));
+
+            Points point = new Points(latitude, longitude, markupList.size(), locName, description);
+            markupList.add(point);
             FileUtility.saveFiletoLocal(this, "markup.txt", FileUtility.formatData(markupList));
 
-            addMarkerToMap(locName, description, longitude, latitude, paths, markupList.size() - 1);
+            addMarkerToMap(point, markupList.size() - 1);
 
             Toast.makeText(MainActivity.this, "Added markup Name: " + locName, Toast.LENGTH_SHORT).show();
             tLocate.setText("Returned.");

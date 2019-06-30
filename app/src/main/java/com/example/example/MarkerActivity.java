@@ -24,7 +24,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import pub.devrel.easypermissions.EasyPermissions;
@@ -128,11 +131,19 @@ public class MarkerActivity extends AppCompatActivity implements View.OnClickLis
         if (lText == "" || dText == "") {
             Toast.makeText(this, "Enter name and description please!", Toast.LENGTH_SHORT).show();
         } else {
+            Calendar calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH)+1;
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            int minute = calendar.get(Calendar.MINUTE);
+            int second = calendar.get(Calendar.SECOND);
             intent.putExtra("location", lText);
             intent.putExtra("description", dText);
             intent.putExtra("lat", curLat);
             intent.putExtra("long", curLong);
             intent.putExtra("paths", paths);
+            // intent.putExtra("date", year+"-"+month+"-"+day+" "+hour+":"+minute+":"+second);
             Log.d("Photo Upload", paths);
             setResult(2, intent);
             Toast.makeText(this, "Information Saved!", Toast.LENGTH_SHORT).show();

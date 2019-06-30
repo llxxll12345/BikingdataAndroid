@@ -7,19 +7,22 @@
 
     <TextView
         android:id="@+id/dCoord"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="409dp"
+        android:layout_height="19dp"
+        android:layout_marginTop="8dp"
         android:text="@string/app_name"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="12dp" />
+        app:layout_constraintStart_toStartOf="@+id/dName"
+        app:layout_constraintTop_toBottomOf="@+id/dName" />
 
     <TextView
         android:id="@+id/dName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/dCoord"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="42dp" />
+        android:layout_marginTop="16dp"
+        android:text="Name"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="65dp" />
 
     <TextView
         android:id="@+id/dDes"
@@ -27,75 +30,97 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/dName"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/imageView13"
-        app:layout_constraintTop_toBottomOf="@+id/dName"
-        tools:layout_editor_absoluteX="0dp" />
+        android:text="Description"
+        app:layout_constraintStart_toStartOf="@+id/dTime"
+        app:layout_constraintTop_toBottomOf="@+id/dTime" />
 
     <ImageView
         android:id="@+id/imageView13"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="188dp"
-        app:layout_constraintTop_toBottomOf="@+id/dCoord"
-        app:srcCompat="@drawable/ic_launcher_background"
-        tools:layout_editor_absoluteX="16dp" />
+        android:layout_width="72dp"
+        android:layout_height="67dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toEndOf="@+id/imageView15"
+        app:layout_constraintTop_toBottomOf="@+id/dDes"
+        app:srcCompat="@drawable/ic_launcher_background" />
 
     <ImageView
         android:id="@+id/imageView14"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        app:layout_constraintStart_toEndOf="@+id/imageView13"
-        app:layout_constraintTop_toTopOf="@+id/imageView13"
+        android:layout_width="69dp"
+        android:layout_height="63dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintEnd_toEndOf="@+id/imageView18"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/imageView18"
+        app:layout_constraintTop_toBottomOf="@+id/imageView18"
         app:srcCompat="@drawable/ic_launcher_background" />
 
     <ImageView
         android:id="@+id/imageView15"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        app:layout_constraintStart_toEndOf="@+id/imageView14"
-        app:layout_constraintTop_toTopOf="@+id/imageView14"
+        android:layout_width="70dp"
+        android:layout_height="67dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="@+id/dDes"
+        app:layout_constraintTop_toBottomOf="@+id/dDes"
         app:srcCompat="@drawable/ic_launcher_background" />
 
     <ImageView
         android:id="@+id/imageView16"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_width="73dp"
+        android:layout_height="65dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintStart_toStartOf="@+id/imageView13"
         app:layout_constraintTop_toBottomOf="@+id/imageView13"
         app:srcCompat="@drawable/ic_launcher_background" />
 
     <ImageView
         android:id="@+id/imageView17"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        app:layout_constraintStart_toEndOf="@+id/imageView16"
-        app:layout_constraintTop_toBottomOf="@+id/imageView14"
+        android:layout_width="69dp"
+        android:layout_height="65dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintStart_toStartOf="@+id/dDes"
+        app:layout_constraintTop_toBottomOf="@+id/imageView15"
         app:srcCompat="@drawable/ic_launcher_background" />
 
     <ImageView
         android:id="@+id/imageView18"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        app:layout_constraintStart_toEndOf="@+id/imageView17"
-        app:layout_constraintTop_toBottomOf="@+id/imageView15"
+        android:layout_width="69dp"
+        android:layout_height="67dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toEndOf="@+id/imageView13"
+        app:layout_constraintTop_toBottomOf="@+id/dDes"
         app:srcCompat="@drawable/ic_launcher_background" />
 
     <Button
         android:id="@+id/btn_delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="16dp"
         android:text="Delete"
-        app:layout_constraintStart_toStartOf="@+id/imageView16"
-        app:layout_constraintTop_toBottomOf="@+id/imageView16" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView17"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <TextView
+        android:id="@+id/dCreator"
+        android:layout_width="380dp"
+        android:layout_height="22dp"
+        android:layout_marginTop="8dp"
+        android:text="Creator"
+        app:layout_constraintStart_toStartOf="@+id/dCoord"
+        app:layout_constraintTop_toBottomOf="@+id/dCoord" />
+
+    <TextView
+        android:id="@+id/dTime"
+        android:layout_width="380dp"
+        android:layout_height="22dp"
+        android:layout_marginTop="8dp"
+        android:text="Date"
+        app:layout_constraintStart_toStartOf="@+id/dCreator"
+        app:layout_constraintTop_toBottomOf="@+id/dCreator" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

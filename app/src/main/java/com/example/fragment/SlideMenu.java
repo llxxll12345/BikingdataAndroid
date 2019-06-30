@@ -181,12 +181,12 @@ public class SlideMenu extends RelativeLayout{
 
 
     private void switchMaskView(boolean bShow){
-        if(bShow){
+        if(bShow) {
             mMaskView.setVisibility(View.VISIBLE);
             Animation animation = new AlphaAnimation(0.0f, 1.0f);
             animation.setDuration(mDuration);
             mMaskView.startAnimation(animation);
-        }else{
+        } else{
             mMaskView.setVisibility(View.GONE);
         }
     }

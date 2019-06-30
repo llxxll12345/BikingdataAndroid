@@ -5,6 +5,7 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.example.example.MainActivity;
+import com.example.utility.UserStatus;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,11 +33,8 @@ public class Points {
         Date date = new Date();
         this.date = dt.format(date);
         photoUrls = new ArrayList<>();
-    }
 
-    public Points(String creator, String latitude, String longitude, int id, String locationName, String description) {
-        this(latitude, longitude, id, locationName, description);
-        this.creator = creator;
+        this.creator = UserStatus.getUserName();
     }
 
     public Points(String toDecode) {
@@ -75,6 +73,14 @@ public class Points {
         }
     }
 
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -89,6 +95,14 @@ public class Points {
             base += url + ";";
         }
         return base;
+    }
+
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator;
     }
 
     @Override
